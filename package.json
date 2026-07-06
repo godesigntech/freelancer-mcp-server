@@ -1,0 +1,46 @@
+{
+  "name": "freelancer-mcp-server",
+  "version": "2.0.0",
+  "description": "MCP server for Freelancer.com — search & bid on projects, read/send messages by thread or chat link, manage profiles/skills, and support multiple connected accounts. For use with Claude Code, Claude Desktop or any MCP-compatible client.",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "freelancer-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "freelancer",
+    "claude",
+    "bidding",
+    "freelance"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/godesigntech/freelancer-mcp-server.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "axios": "^1.7.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}
