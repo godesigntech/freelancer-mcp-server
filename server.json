@@ -1,0 +1,34 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.godesigntech/freelancer-mcp-server",
+  "description": "MCP server for Freelancer.com — search and bid on projects, read/send client messages by thread or chat link, review your bid/project history, and manage skills and specialty profiles. Supports multiple connected Freelancer accounts.",
+  "repository": {
+    "url": "https://github.com/godesigntech/freelancer-mcp-server",
+    "source": "github"
+  },
+  "version": "2.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "freelancer-mcp-server",
+      "version": "2.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "FREELANCER_OAUTH_TOKEN",
+          "description": "Personal Access Token for a single Freelancer.com account. Get one at https://accounts.freelancer.com/settings/develop",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "FREELANCER_ACCOUNTS",
+          "description": "JSON object mapping account labels to Personal Access Tokens, for connecting multiple Freelancer.com accounts in one server, e.g. {\"main\":\"token1\",\"client_acme\":\"token2\"}",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

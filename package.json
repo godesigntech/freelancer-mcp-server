@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "MCP server for Freelancer.com — search & bid on projects, read/send messages by thread or chat link, manage profiles/skills, and support multiple connected accounts. For use with Claude Code, Claude Desktop or any MCP-compatible client.",
   "main": "dist/index.js",
+  "mcpName": "io.github.godesigntech/freelancer-mcp-server",
   "type": "module",
   "bin": {
     "freelancer-mcp-server": "dist/index.js"
