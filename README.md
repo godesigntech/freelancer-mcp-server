@@ -6,6 +6,17 @@ Supports **multiple Freelancer accounts in one server** (e.g. your own account p
 
 This project is 100% self-contained: it talks only to `freelancer.com`'s public API using whatever access token(s) you provide. No other data source, project, or third-party service is involved.
 
+## Get your access token (do this first)
+
+1. Log in to Freelancer.com
+2. Go to **[freelancer.com/settings/develop](https://accounts.freelancer.com/settings/develop)**
+3. Under **Application Dashboard**, click **Generate Token**
+4. Copy the token shown under **Access Token**
+
+![Where to generate your Freelancer access token](assets/access-token.png)
+
+That token is all this server needs — no password, no app review, no OAuth redirect flow. Repeat this for each additional Freelancer account you want connected (see [Multiple accounts](#multiple-accounts)).
+
 ## What you can ask Claude
 
 | Tool | Example prompt |
@@ -44,19 +55,20 @@ Claude will chain `freelancer_my_bids` (status `awarded` vs `rejected`), `freela
 
 `freelancer_get_messages` and `freelancer_send_message` accept either a plain numeric thread ID or a pasted Freelancer chat/message link — the server extracts the ID either way.
 
+## See it in action
+
+**Finding and scoring the best projects to bid on, with a ready pitch script for each:**
+![Claude finding CRM projects worth bidding on, with per-project pitch scripts](assets/demo-find-jobs.jpeg)
+
+**Reading a client thread by chat link and building a conversion strategy:**
+![Claude reading a client message thread and giving a strategy to convert them](assets/demo-client-strategy.jpeg)
+
+**Auditing skills already on a profile:**
+![Claude listing all skills on a Freelancer profile, grouped by category](assets/demo-list-skills.jpeg)
+
 ## Setup
 
-### 1. Get a Personal Access Token
-
-1. Log in to Freelancer.com
-2. Go to https://accounts.freelancer.com/settings/develop
-3. Create a new app (or use an existing one)
-4. Generate a **Personal Access Token**
-5. Copy it
-
-Repeat for each additional Freelancer account you want this server to control (e.g. a client's account you manage, with their permission).
-
-### 2. Install and build
+### 1. Install and build
 
 ```bash
 git clone https://github.com/godesigntech/freelancer-mcp-server.git
@@ -65,7 +77,7 @@ npm install
 npm run build
 ```
 
-### 3. Configure your MCP client
+### 2. Configure your MCP client
 
 #### Claude Code (CLI)
 
