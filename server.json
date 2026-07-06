@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.godesigntech/freelancer-mcp-server",
-  "description": "MCP server for Freelancer.com — search and bid on projects, read/send client messages by thread or chat link, review your bid/project history, and manage skills and specialty profiles. Supports multiple connected Freelancer accounts.",
+  "description": "Search, bid, and message clients on Freelancer.com from Claude. Multi-account support.",
   "repository": {
     "url": "https://github.com/godesigntech/freelancer-mcp-server",
     "source": "github"
