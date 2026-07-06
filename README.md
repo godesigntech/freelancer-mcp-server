@@ -9,7 +9,7 @@ This project is 100% self-contained: it talks only to `freelancer.com`'s public 
 ## Get your access token (do this first)
 
 1. Log in to Freelancer.com
-2. Go to **[freelancer.com/settings/develop](https://accounts.freelancer.com/settings/develop)**
+2. Go to **[accounts.freelancer.com/settings/develop](https://accounts.freelancer.com/settings/develop)**
 3. Under **Application Dashboard**, click **Generate Token**
 4. Copy the token shown under **Access Token**
 
@@ -68,30 +68,21 @@ Claude will chain `freelancer_my_bids` (status `awarded` vs `rejected`), `freela
 
 ## Setup
 
-### 1. Install and build
+The package is published on npm as [`freelancer-mcp-server`](https://www.npmjs.com/package/freelancer-mcp-server) — no clone, no build, `npx` fetches and runs it on demand.
+
+### Claude Code (CLI)
 
 ```bash
-git clone https://github.com/godesigntech/freelancer-mcp-server.git
-cd freelancer-mcp-server
-npm install
-npm run build
+claude mcp add freelancer --env FREELANCER_OAUTH_TOKEN=your_token_here -- npx -y freelancer-mcp-server
 ```
 
-### 2. Configure your MCP client
+Or just ask Claude Code directly, in plain English, once you have your token:
 
-#### Claude Code (CLI)
+> "Add the freelancer-mcp-server MCP server using npx, with my Freelancer access token set as FREELANCER_OAUTH_TOKEN"
 
-```bash
-claude mcp add freelancer -- node /FULL/PATH/TO/freelancer-mcp-server/dist/index.js
-```
+Claude Code can run the `claude mcp add` command itself — you don't have to type it.
 
-Then set the token as an environment variable before launching, or add it to the server config — see `claude mcp add --help` for `--env` flags, e.g.:
-
-```bash
-claude mcp add freelancer --env FREELANCER_OAUTH_TOKEN=your_token_here -- node /FULL/PATH/TO/freelancer-mcp-server/dist/index.js
-```
-
-#### Claude Desktop
+### Claude Desktop
 
 Open your Claude Desktop config file:
 
@@ -104,8 +95,8 @@ Add this block inside `"mcpServers"` (create the file if it doesn't exist):
 {
   "mcpServers": {
     "freelancer": {
-      "command": "node",
-      "args": ["/FULL/PATH/TO/freelancer-mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "freelancer-mcp-server"],
       "env": {
         "FREELANCER_OAUTH_TOKEN": "your_token_here"
       }
@@ -114,7 +105,7 @@ Add this block inside `"mcpServers"` (create the file if it doesn't exist):
 }
 ```
 
-Replace `/FULL/PATH/TO/` with the real absolute path on your machine. Restart Claude Desktop — you should see a 🔌 indicating the server connected.
+Restart Claude Desktop — you should see a 🔌 indicating the server connected.
 
 ### Multiple accounts
 
@@ -124,8 +115,8 @@ To connect more than one Freelancer account (your own plus, say, two clients'), 
 {
   "mcpServers": {
     "freelancer": {
-      "command": "node",
-      "args": ["/FULL/PATH/TO/freelancer-mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "freelancer-mcp-server"],
       "env": {
         "FREELANCER_ACCOUNTS": "{\"main\":\"token1\",\"client_acme\":\"token2\"}"
       }
@@ -134,7 +125,23 @@ To connect more than one Freelancer account (your own plus, say, two clients'), 
 }
 ```
 
+Or via `claude mcp add`:
+
+```bash
+claude mcp add freelancer --env FREELANCER_ACCOUNTS='{"main":"token1","client_acme":"token2"}' -- npx -y freelancer-mcp-server
+```
+
 The first account listed becomes the default (used when a tool call omits `account`). Ask Claude "which Freelancer accounts are connected?" to confirm, then say e.g. "using the client_acme account, show me the latest projects" to target a specific one. Tokens are never logged, echoed back, or written anywhere by this server — they only ever go into the outgoing `freelancer-oauth-v1` header.
+
+### Running from source (contributing)
+
+```bash
+git clone https://github.com/godesigntech/freelancer-mcp-server.git
+cd freelancer-mcp-server
+npm install
+npm run build
+claude mcp add freelancer --env FREELANCER_OAUTH_TOKEN=your_token_here -- node /FULL/PATH/TO/freelancer-mcp-server/dist/index.js
+```
 
 ## Testing
 
@@ -176,7 +183,7 @@ The Freelancer.com public REST API is read-mostly for profiles. After probing th
 → Run `freelancer_list_accounts` to see the exact labels configured, then use one of those.
 
 **Tool not appearing in Claude**
-→ Confirm the path in your config is the absolute path to `dist/index.js`, and that `npm run build` succeeded.
+→ If using `npx`, confirm Node.js 18+ is installed and `npx -y freelancer-mcp-server` runs without error from a terminal. If running from source, confirm the path in your config is the absolute path to `dist/index.js`, and that `npm run build` succeeded.
 
 ## Contributing
 
