@@ -30,6 +30,8 @@ export interface FreelancerProject {
   status: string;
   type: string;
   budget?: { minimum?: number; maximum?: number; currency_code?: string };
+  currency?: { code?: string; sign?: string };
+  seo_url?: string;
   bid_stats?: { bid_count?: number; bid_avg?: number };
   time_submitted?: number;
   time_updated?: number;
@@ -47,6 +49,8 @@ export interface FreelancerBid {
   period: number;
   description: string;
   status: string;
+  frontend_bid_status?: string;
+  award_status?: string;
   time_submitted?: number;
   reputation?: { overall?: number };
   bidder?: FreelancerUser;

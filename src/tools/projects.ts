@@ -100,7 +100,7 @@ Use when: "Tell me more about project 12345678", "Get the details for this proje
         const result = await apiGet<{ projects: Record<string, FreelancerProject> }>(
           "/projects/0.1/projects",
           {
-            "ids[]": project_id,
+            "projects[]": project_id,
             full_description: true,
             job_details: true,
             upgrade_details: true,
@@ -188,10 +188,22 @@ Use when: "Show my active projects", "List projects I'm working on", "What proje
   );
 }
 
+function projectUrl(p: FreelancerProject): string | null {
+  // Freelancer's seo_url category slug doesn't reliably match the project's
+  // title/skills, so it must never be hand-constructed — only the API's own
+  // value is a valid link.
+  return p.seo_url ? `https://www.freelancer.com/projects/${p.seo_url}` : null;
+}
+
+function formatBudget(p: FreelancerProject): string {
+  if (!p.budget) return "Budget TBD";
+  const code = p.currency?.code ?? p.budget.currency_code ?? "";
+  const sign = p.currency?.sign ?? "";
+  return `${sign}${p.budget.minimum ?? "?"}–${sign}${p.budget.maximum ?? "?"}${code ? " " + code : ""}`;
+}
+
 function formatProjectSummary(p: FreelancerProject, index: number): string {
-  const budget = p.budget
-    ? `$${p.budget.minimum ?? "?"}–$${p.budget.maximum ?? "?"} ${p.budget.currency_code ?? "USD"}`
-    : "Budget TBD";
+  const budget = formatBudget(p);
   const skills = p.jobs?.map((j) => j.name).join(", ") || "";
   return [
     `**${index}. [${p.id}] ${p.title}**`,
@@ -199,6 +211,7 @@ function formatProjectSummary(p: FreelancerProject, index: number): string {
     `   Bids: ${p.bid_stats?.bid_count ?? 0} (avg $${p.bid_stats?.bid_avg?.toFixed(0) ?? "?"})`,
     skills ? `   Skills: ${skills}` : "",
     `   Posted: ${formatDate(p.time_submitted)}`,
+    projectUrl(p) ? `   URL: ${projectUrl(p)}` : "",
     "",
   ]
     .filter((l) => l !== null)
@@ -206,9 +219,7 @@ function formatProjectSummary(p: FreelancerProject, index: number): string {
 }
 
 function formatProjectFull(p: FreelancerProject): string {
-  const budget = p.budget
-    ? `$${p.budget.minimum ?? "?"}–$${p.budget.maximum ?? "?"} ${p.budget.currency_code ?? "USD"}`
-    : "Budget TBD";
+  const budget = formatBudget(p);
   const skills = p.jobs?.map((j) => j.name).join(", ") || "none";
   return [
     `## [${p.id}] ${p.title}`,
@@ -217,6 +228,7 @@ function formatProjectFull(p: FreelancerProject): string {
     `**Posted:** ${formatDate(p.time_submitted)} | **Updated:** ${formatDate(p.time_updated)}`,
     `**Bids:** ${p.bid_stats?.bid_count ?? 0} (avg $${p.bid_stats?.bid_avg?.toFixed(0) ?? "?"})`,
     `**Skills:** ${skills}`,
+    projectUrl(p) ? `**URL:** ${projectUrl(p)}` : "",
     "",
     "### Description",
     p.description || "No description provided.",

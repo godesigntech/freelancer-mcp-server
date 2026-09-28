@@ -34,7 +34,7 @@ Use when: "Who has bid on project 12345?", "How much are people bidding?", "Show
         const result = await apiGet<{ bids: FreelancerBid[]; total_count: number }>(
           "/projects/0.1/bids",
           {
-            "project_ids[]": project_id,
+            "projects[]": project_id,
             limit,
             offset,
             reputation_details: true,
@@ -47,15 +47,16 @@ Use when: "Who has bid on project 12345?", "How much are people bidding?", "Show
           return { content: [{ type: "text", text: `No bids found for project ${project_id}.` }] };
         }
 
+        const total = result.total_count ?? result.bids.length;
         const lines = [
-          `**Bids on project ${project_id}** — ${result.total_count} total (showing ${result.bids.length}):`,
+          `**Bids on project ${project_id}** — showing ${result.bids.length}${result.total_count ? ` of ${total}` : ""}:`,
           "",
           ...result.bids.map((b, i) => formatBid(b, i + 1)),
         ];
 
         return {
           content: [{ type: "text", text: truncate(lines.join("\n"), CHARACTER_LIMIT) }],
-          structuredContent: { total: result.total_count, bids: result.bids },
+          structuredContent: { total, bids: result.bids },
         };
       } catch (err) {
         return mcpError((err as Error).message);
@@ -93,7 +94,7 @@ Use when: "Show my bids", "Which of my bids are active?", "Have any of my bids b
         const selfId = selfResult.id;
 
         const params: Record<string, unknown> = {
-          "bidder_ids[]": selfId,
+          "bidders[]": selfId,
           limit,
           offset,
           project_details: true,
@@ -110,15 +111,16 @@ Use when: "Show my bids", "Which of my bids are active?", "Have any of my bids b
           return { content: [{ type: "text", text: "No bids found." }] };
         }
 
+        const total = result.total_count ?? result.bids.length;
         const lines = [
-          `**Your bids** — ${result.total_count} total (showing ${result.bids.length}):`,
+          `**Your bids** — showing ${result.bids.length}${result.total_count ? ` of ${total}` : ""}:`,
           "",
           ...result.bids.map((b, i) => formatBid(b, i + 1)),
         ];
 
         return {
           content: [{ type: "text", text: truncate(lines.join("\n"), CHARACTER_LIMIT) }],
-          structuredContent: { total: result.total_count, bids: result.bids },
+          structuredContent: { total, bids: result.bids },
         };
       } catch (err) {
         return mcpError((err as Error).message);
@@ -158,8 +160,14 @@ Use when: "Bid $150 on project 12345 with 7 days delivery", "Submit a proposal"`
     },
     async ({ project_id, amount, period, description, milestone_percentage, account }) => {
       try {
+        // Freelancer requires the bidder_id on the bid payload; it identifies
+        // which account is placing the bid. Resolve it from the same account
+        // the request is being made as.
+        const self = await apiGet<{ id: number }>("/users/0.1/self", undefined, account);
+
         const result = await apiPost<FreelancerBid>("/projects/0.1/bids", {
           project_id,
+          bidder_id: self.id,
           amount,
           period,
           description,
@@ -174,8 +182,8 @@ Use when: "Bid $150 on project 12345 with 7 days delivery", "Submit a proposal"`
                 `✅ **Bid placed successfully!**`,
                 `Bid ID: ${result.id}`,
                 `Project: ${project_id}`,
-                `Amount: $${amount} | Delivery: ${period} days`,
-                `Status: ${result.status}`,
+                `Amount: ${amount} | Delivery: ${period} days`,
+                `Status: ${result.frontend_bid_status ?? result.award_status ?? result.status ?? "—"}`,
                 `Submitted: ${formatDate(result.time_submitted)}`,
               ].join("\n"),
             },
@@ -192,8 +200,8 @@ Use when: "Bid $150 on project 12345 with 7 days delivery", "Submit a proposal"`
 function formatBid(b: FreelancerBid, index: number): string {
   const bidder = b.bidder;
   return [
-    `**${index}. Bid #${b.id}** — $${b.amount} / ${b.period} days`,
-    `   Status: ${b.status} | Submitted: ${formatDate(b.time_submitted)}`,
+    `**${index}. Bid #${b.id}** — ${b.amount} / ${b.period} days`,
+    `   Status: ${b.frontend_bid_status ?? b.award_status ?? b.status ?? "—"} | Submitted: ${formatDate(b.time_submitted)}`,
     bidder ? `   Bidder: @${bidder.username} (${bidder.display_name}) ⭐ ${b.reputation?.overall?.toFixed(2) ?? "N/A"}` : "",
     b.description ? `   Proposal: ${b.description.slice(0, 200)}${b.description.length > 200 ? "..." : ""}` : "",
     "",
